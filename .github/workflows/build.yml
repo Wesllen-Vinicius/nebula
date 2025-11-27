@@ -127,10 +127,14 @@ jobs:
 
       - name: Update go.sum
         working-directory: backend
+        env:
+          CGO_ENABLED: 0
         run: go mod tidy
 
       - name: Build backend
         working-directory: backend
+        env:
+          CGO_ENABLED: 0
         run: |
           mkdir -p bin
           go build -ldflags="-s -w" -o bin/nebula-backend .

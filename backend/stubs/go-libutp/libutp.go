@@ -27,12 +27,19 @@ func WithLogger(logger interface{}) Option {
 }
 
 // NewSocket cria um novo socket uTP (stub)
-// Aceita opções variádicas (compatível com anacrolix/torrent v1.54.0)
-func NewSocket(opts ...Option) (*Socket, error) {
+// Assinatura: NewSocket(network, addr string, opts ...Option)
+// Compatível com anacrolix/torrent v1.54.0
+func NewSocket(network, addr string, opts ...Option) (*Socket, error) {
 	s := &Socket{}
+	// Ignora network e addr (stub vazio - uTP desabilitado)
+	_ = network
+	_ = addr
+	
+	// Processa opções se houver
 	for _, opt := range opts {
 		opt(s)
 	}
+	
 	return s, nil
 }
 
@@ -45,6 +52,12 @@ func (s *Socket) Close() error {
 // Necessário para implementar a interface utpSocket
 func (s *Socket) Accept() (net.Conn, error) {
 	return nil, nil
+}
+
+// Addr retorna o endereço do socket (stub)
+// Necessário para implementar a interface utpSocket
+func (s *Socket) Addr() net.Addr {
+	return nil
 }
 
 // SetSyncFirewallCallback define o callback de firewall (stub)

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"runtime"
 	"sync"
 	"time"
 
@@ -40,10 +39,10 @@ func NewService(config *DownloadConfig, outputDir string) (*Service, error) {
 
 	// === OTIMIZAÇÕES DE VELOCIDADE ===
 
-	// Storage otimizado: MMap no Linux (melhor performance), File no Windows (sem CGO)
-	// MMap usa memory-mapped files para I/O otimizado
-	// File é I/O padrão, ainda eficiente mas sem otimizações de memória
-	if runtime.GOOS == "windows" && os.Getenv("CGO_ENABLED") == "0" {
+	// Storage: usar NewFile quando CGO está desabilitado (Windows e Linux)
+	// NewMMap requer CGO, então usamos NewFile como fallback
+	// NewFile ainda oferece boa performance e é mais portátil (static linked)
+	if os.Getenv("CGO_ENABLED") == "0" {
 		cfg.DefaultStorage = storage.NewFile(outputDir)
 	} else {
 		cfg.DefaultStorage = storage.NewMMap(outputDir)
@@ -55,9 +54,9 @@ func NewService(config *DownloadConfig, outputDir string) (*Service, error) {
 	// Habilitar PEX (Peer Exchange)
 	cfg.DisablePEX = false
 
-	// Desabilitar uTP devido a problemas de compilação com go-libutp no Windows
-	// uTP é opcional e o BitTorrent funciona perfeitamente via TCP (padrão)
-	// TCP oferece melhor compatibilidade e estabilidade
+	// Desabilitar uTP - BitTorrent funciona perfeitamente via TCP (padrão)
+	// Com CGO desabilitado, anacrolix/torrent usa implementação Go pura (anacrolix/utp)
+	// uTP é opcional e TCP oferece melhor compatibilidade e estabilidade
 	cfg.DisableUTP = true
 
 	cfg.EstablishedConnsPerTorrent = 80

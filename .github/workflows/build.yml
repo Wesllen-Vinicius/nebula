@@ -29,6 +29,9 @@ jobs:
         with:
           toolchain: stable
 
+      - name: Install Tauri CLI
+        run: npm install -g @tauri-apps/cli@^2.9.4
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
@@ -63,7 +66,7 @@ jobs:
 
       - name: Build Tauri app (Windows)
         working-directory: src-tauri
-        run: cargo tauri build --bundles msi,nsis
+        run: tauri build --bundles msi,nsis
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
@@ -92,6 +95,9 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
+
+      - name: Install Tauri CLI
+        run: npm install -g @tauri-apps/cli@^2.9.4
 
       - name: Setup Go
         uses: actions/setup-go@v5
@@ -124,7 +130,7 @@ jobs:
 
       - name: Build Tauri app (Linux)
         working-directory: src-tauri
-        run: cargo tauri build --bundles appimage,deb
+        run: tauri build --bundles appimage,deb
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4

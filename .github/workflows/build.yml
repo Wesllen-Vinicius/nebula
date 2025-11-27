@@ -59,6 +59,9 @@ jobs:
         run: |
           if (-not (Test-Path bin)) { New-Item -ItemType Directory -Path bin }
           go build -ldflags="-s -w" -o bin/nebula-backend.exe .
+          # Tauri 2.0 adiciona sufixo de arquitetura ao externalBin
+          # Formato: nebula-backend-{target-triple}.exe
+          Copy-Item bin/nebula-backend.exe "bin/nebula-backend-x86_64-pc-windows-msvc.exe"
 
       - name: Verify backend binary exists
         run: |
@@ -70,7 +73,7 @@ jobs:
 
       - name: Build Tauri app (Windows)
         working-directory: src-tauri
-        run: tauri build --bundles msi,nsis
+        run: tauri build --bundles msi nsis
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
@@ -124,21 +127,22 @@ jobs:
 
       - name: Update go.sum
         working-directory: backend
-        env:
-          CGO_ENABLED: 0
         run: go mod tidy
 
       - name: Build backend
         working-directory: backend
-        env:
-          CGO_ENABLED: 0
         run: |
           mkdir -p bin
           go build -ldflags="-s -w" -o bin/nebula-backend .
+          # Tauri 2.0 adiciona sufixo de arquitetura ao externalBin
+          # Formato: nebula-backend-{target-triple}
+          cp bin/nebula-backend bin/nebula-backend-x86_64-unknown-linux-gnu
+          # Formato: nebula-backend-{target-triple}
+          cp bin/nebula-backend bin/nebula-backend-x86_64-unknown-linux-gnu
 
       - name: Build Tauri app (Linux)
         working-directory: src-tauri
-        run: tauri build --bundles appimage,deb
+        run: tauri build --bundles appimage deb
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4

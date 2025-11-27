@@ -81,6 +81,7 @@ require (
 	zombiezen.com/go/sqlite v0.13.1 // indirect
 )
 
-// Substituir go-libutp por stub local quando CGO está desabilitado
+// Substituir go-libutp por stub local para evitar erros de compilação C
 // O uTP está desabilitado no código (cfg.DisableUTP = true), então não precisamos da implementação C
+// O stub funciona tanto com CGO habilitado quanto desabilitado
 replace github.com/anacrolix/go-libutp => ./stubs/go-libutp

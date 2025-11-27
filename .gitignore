@@ -1,0 +1,133 @@
+# Go
+backend/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.DS_Store
+
+# Rust
+src-tauri/target/
+**/*.rs.bk
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+*.lnk
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Build
+dist/
+build/
+*.pdb
+*.dSYM
+
+# Config e Secrets
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.cert
+*.crt
+*.cer
+*.p7b
+*.p7c
+*.p7m
+*.p7s
+*.der
+
+# Nebula specific - Dados do usuário e configurações
+.api_key
+*.api_key
+**/Nebula/
+**/.nebula/
+**/nebula_data/
+**/downloads/
+**/torrents/
+**/cache/
+config.json
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+
+# Arquivos temporários
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.orig
+*.save
+*.swp
+*.swo
+*~
+
+# Arquivos de teste e debug
+test_data/
+test_files/
+*.test.json
+*.debug.json
+debug/
+coverage/
+.nyc_output/
+
+# Arquivos de sistema
+*.pid
+*.lock
+*.lck
+*.pid.lock
+
+# Arquivos de cache
+.cache/
+*.cache
+.cache/
+.npm/
+.yarn/
+.pnpm-store/
+
+# Arquivos de backup do sistema
+*.bak
+*.backup
+*.old
+*.orig
+
+# Arquivos de dados pessoais (nunca commitar)
+user_data/
+personal/
+private/
+secrets/
+credentials/
+

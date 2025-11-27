@@ -1,0 +1,486 @@
+openapi: 3.0.3
+info:
+  title: Nebula API
+  description: API para gerenciamento de downloads de torrents
+  version: 1.0.0
+  contact:
+    name: Nebula Project
+  license:
+    name: MIT
+
+servers:
+  - url: http://127.0.0.1:8080
+    description: Servidor local
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      tags: [System]
+      security: []
+      responses:
+        '200':
+          description: Serviço saudável
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /metrics:
+    get:
+      summary: Métricas do sistema
+      tags: [System]
+      security: []
+      responses:
+        '200':
+          description: Métricas atuais
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Metrics'
+
+  /api/magnet/analyze:
+    post:
+      summary: Analisa um magnet link
+      tags: [Magnet]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [magnet_link]
+              properties:
+                magnet_link:
+                  type: string
+                  example: magnet:?xt=urn:btih:...
+      responses:
+        '200':
+          description: Informações do torrent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TorrentInfo'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/magnet/download:
+    post:
+      summary: Inicia um download
+      tags: [Magnet]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DownloadRequest'
+      responses:
+        '200':
+          description: Download iniciado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/torrent/analyze:
+    post:
+      summary: Analisa um arquivo torrent
+      tags: [Torrent]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                torrent:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Informações do torrent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TorrentInfo'
+
+  /api/download:
+    get:
+      summary: Lista todos os downloads
+      tags: [Download]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, downloading, paused, completed, error]
+      responses:
+        '200':
+          description: Lista de downloads
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DownloadRecord'
+
+  /api/download/{id}/status:
+    get:
+      summary: Status de um download
+      tags: [Download]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Status do download
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DownloadRecord'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/download/{id}/pause:
+    post:
+      summary: Pausa um download
+      tags: [Download]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Download pausado
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/download/{id}/resume:
+    post:
+      summary: Retoma um download
+      tags: [Download]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Download retomado
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/download/{id}:
+    delete:
+      summary: Cancela um download
+      tags: [Download]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Download cancelado
+
+  /api/download/{id}/delete-files:
+    delete:
+      summary: Deleta arquivos do download
+      tags: [Download]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Arquivos deletados
+
+  /api/favorites:
+    get:
+      summary: Lista favoritos
+      tags: [Favorites]
+      responses:
+        '200':
+          description: Lista de favoritos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Favorite'
+    post:
+      summary: Adiciona favorito
+      tags: [Favorites]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [magnet_link]
+              properties:
+                name:
+                  type: string
+                magnet_link:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                notes:
+                  type: string
+      responses:
+        '201':
+          description: Favorito criado
+
+  /api/favorites/{id}:
+    delete:
+      summary: Remove favorito
+      tags: [Favorites]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Favorito removido
+
+  /api/config:
+    get:
+      summary: Retorna configurações
+      tags: [Config]
+      responses:
+        '200':
+          description: Configurações atuais
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Config'
+
+  /api/config/download-speed:
+    put:
+      summary: Define velocidade de download
+      tags: [Config]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                max_download_speed:
+                  type: integer
+                  description: Velocidade em bytes/s (0 = ilimitado)
+      responses:
+        '200':
+          description: Configuração atualizada
+
+  /api/config/upload-speed:
+    put:
+      summary: Define velocidade de upload
+      tags: [Config]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                max_upload_speed:
+                  type: integer
+                  description: Velocidade em bytes/s (0 = ilimitado)
+      responses:
+        '200':
+          description: Configuração atualizada
+
+  /api/progress:
+    get:
+      summary: SSE para progresso de downloads
+      tags: [System]
+      responses:
+        '200':
+          description: Stream de eventos
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+
+  schemas:
+    TorrentInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        info_hash:
+          type: string
+        magnet_link:
+          type: string
+        total_size:
+          type: integer
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/TorrentFile'
+
+    TorrentFile:
+      type: object
+      properties:
+        index:
+          type: integer
+        path:
+          type: string
+        size:
+          type: integer
+
+    DownloadRequest:
+      type: object
+      required: [magnet_link, selected_indices]
+      properties:
+        magnet_link:
+          type: string
+        output_dir:
+          type: string
+        selected_indices:
+          type: array
+          items:
+            type: integer
+        sequential:
+          type: boolean
+          default: false
+
+    DownloadRecord:
+      type: object
+      properties:
+        id:
+          type: string
+        magnet_link:
+          type: string
+        output_dir:
+          type: string
+        selected_indices:
+          type: array
+          items:
+            type: integer
+        status:
+          type: string
+          enum: [pending, downloading, paused, completed, error]
+        progress:
+          type: number
+        speed:
+          type: number
+        torrent_name:
+          type: string
+        error_message:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Favorite:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        magnet_link:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    Config:
+      type: object
+      properties:
+        max_download_speed:
+          type: integer
+        max_upload_speed:
+          type: integer
+        default_download_dir:
+          type: string
+        theme:
+          type: string
+        compact:
+          type: boolean
+        notifications:
+          type: boolean
+
+    Metrics:
+      type: object
+      properties:
+        active_downloads:
+          type: integer
+        completed_today:
+          type: integer
+        total_downloaded_bytes:
+          type: integer
+        average_speed_mbps:
+          type: number
+        total_connections:
+          type: integer
+        error_rate:
+          type: number
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Requisição inválida
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Recurso não encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    TooManyRequests:
+      description: Muitas requisições
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+

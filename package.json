@@ -1,0 +1,15 @@
+{
+  "name": "nebula",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "backend:build": "cd backend && go build -o bin/nebula-backend.exe .",
+    "backend:run": "cd backend && .\\bin\\nebula-backend.exe"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.9.4"
+  }
+}

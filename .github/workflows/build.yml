@@ -43,6 +43,10 @@ jobs:
         working-directory: frontend
         run: npm run build
 
+      - name: Update go.sum
+        working-directory: backend
+        run: go mod tidy
+
       - name: Build backend
         working-directory: backend
         run: |
@@ -107,6 +111,10 @@ jobs:
       - name: Build frontend
         working-directory: frontend
         run: npm run build
+
+      - name: Update go.sum
+        working-directory: backend
+        run: go mod tidy
 
       - name: Build backend
         working-directory: backend

@@ -25,22 +25,47 @@ impl BackendProcess {
             }
             path.push("backend");
             path.push("bin");
-            path.push("nebula-backend.exe");
+            #[cfg(target_os = "windows")]
+            {
+                path.push("nebula-backend.exe");
+            }
+            #[cfg(not(target_os = "windows"))]
+            {
+                path.push("nebula-backend");
+            }
             path
         } else {
             // Em produção, o backend está no mesmo diretório do executável
             // (incluído via externalBin no tauri.conf.json)
+            // Tauri 2.0 adiciona sufixo de arquitetura: nebula-backend-{target-triple}
             let exe_path = std::env::current_exe()
                 .map_err(|e| format!("Failed to get executable path: {}", e))?;
             let exe_dir = exe_path.parent()
                 .ok_or_else(|| "Failed to get executable directory".to_string())?;
             
-            // Tauri 2.0 coloca externalBin no mesmo diretório do executável
             #[cfg(target_os = "windows")]
             {
-                exe_dir.join("nebula-backend.exe")
+                // Windows: nebula-backend-x86_64-pc-windows-msvc.exe
+                let with_suffix = exe_dir.join("nebula-backend-x86_64-pc-windows-msvc.exe");
+                if with_suffix.exists() {
+                    with_suffix
+                } else {
+                    // Fallback para nome sem sufixo (compatibilidade)
+                    exe_dir.join("nebula-backend.exe")
+                }
             }
-            #[cfg(not(target_os = "windows"))]
+            #[cfg(target_os = "linux")]
+            {
+                // Linux: nebula-backend-x86_64-unknown-linux-gnu
+                let with_suffix = exe_dir.join("nebula-backend-x86_64-unknown-linux-gnu");
+                if with_suffix.exists() {
+                    with_suffix
+                } else {
+                    // Fallback para nome sem sufixo (compatibilidade)
+                    exe_dir.join("nebula-backend")
+                }
+            }
+            #[cfg(not(any(target_os = "windows", target_os = "linux")))]
             {
                 exe_dir.join("nebula-backend")
             }

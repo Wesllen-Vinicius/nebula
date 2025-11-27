@@ -35,7 +35,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version: '1.23'
           cache-dependency-path: backend/go.sum
 
       - name: Install frontend dependencies
@@ -69,7 +69,13 @@ jobs:
             Write-Host "Backend binary not found!"
             exit 1
           }
-          Write-Host "Backend binary found at: backend/bin/nebula-backend.exe"
+          if (-not (Test-Path backend/bin/nebula-backend-x86_64-pc-windows-msvc.exe)) {
+            Write-Host "Backend binary with suffix not found!"
+            exit 1
+          }
+          Write-Host "Backend binaries found:"
+          Write-Host "  - backend/bin/nebula-backend.exe"
+          Write-Host "  - backend/bin/nebula-backend-x86_64-pc-windows-msvc.exe"
 
       - name: Build Tauri app (Windows)
         working-directory: src-tauri
@@ -109,7 +115,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version: '1.23'
           cache-dependency-path: backend/go.sum
 
       - name: Install system dependencies
@@ -141,13 +147,48 @@ jobs:
           # Tauri 2.0 adiciona sufixo de arquitetura ao externalBin
           # Formato: nebula-backend-{target-triple}
           cp bin/nebula-backend bin/nebula-backend-x86_64-unknown-linux-gnu
+          # Verificar se os binários foram criados
+          if [ ! -f bin/nebula-backend ] || [ ! -f bin/nebula-backend-x86_64-unknown-linux-gnu ]; then
+            echo "Erro: Falha ao criar binários do backend"
+            exit 1
+          fi
+          echo "Binários do backend criados com sucesso:"
+          ls -lh bin/nebula-backend*
 
       - name: Convert icon ICO to PNG for Linux
         working-directory: src-tauri
         run: |
-          if [ -f icons/icon.ico ] && [ ! -f icons/icon.png ]; then
-            convert icons/icon.ico -resize 512x512 icons/icon.png
+          if [ ! -f icons/icon.ico ]; then
+            echo "Erro: icon.ico não encontrado em icons/"
+            exit 1
           fi
+          # Converter ICO para PNG RGBA (formato obrigatório do Tauri)
+          # -alpha on: força canal alpha (RGBA)
+          # -colorspace sRGB: garante espaço de cores correto
+          # -background transparent: fundo transparente
+          # -channel RGBA: garante que todos os canais sejam processados
+          convert icons/icon.ico \
+            -alpha on \
+            -colorspace sRGB \
+            -background transparent \
+            -channel RGBA \
+            -resize 512x512 \
+            -define png:format=png32 \
+            icons/icon.png
+          # Verificar se o arquivo foi criado
+          if [ ! -f icons/icon.png ]; then
+            echo "Erro: Falha ao criar icon.png"
+            exit 1
+          fi
+          # Verificar tamanho do arquivo (deve ser > 0)
+          if [ ! -s icons/icon.png ]; then
+            echo "Erro: icon.png está vazio"
+            exit 1
+          fi
+          # Verificar formato do PNG (deve ser RGBA)
+          PNG_INFO=$(identify -verbose icons/icon.png 2>/dev/null | grep -i "channel\|colorspace" || echo "")
+          echo "Informações do PNG: $PNG_INFO"
+          echo "Ícone PNG criado com sucesso: $(ls -lh icons/icon.png)"
 
       - name: Build Tauri app (Linux)
         working-directory: src-tauri

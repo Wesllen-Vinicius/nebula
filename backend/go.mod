@@ -1,6 +1,6 @@
 module nebula/backend
 
-go 1.25
+go 1.23
 
 require (
 	github.com/anacrolix/torrent v1.54.0

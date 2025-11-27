@@ -39,8 +39,14 @@ func NewService(config *DownloadConfig, outputDir string) (*Service, error) {
 
 	// === OTIMIZAÇÕES DE VELOCIDADE ===
 
-	// Storage otimizado com mmap para melhor performance de I/O
-	cfg.DefaultStorage = storage.NewMMap(outputDir)
+	// Storage: usar NewFile quando CGO está desabilitado (Windows)
+	// NewMMap requer CGO, então usamos NewFile como fallback
+	// Isso ainda oferece boa performance
+	if os.Getenv("CGO_ENABLED") == "0" {
+		cfg.DefaultStorage = storage.NewFile(outputDir)
+	} else {
+		cfg.DefaultStorage = storage.NewMMap(outputDir)
+	}
 
 	// Habilitar DHT para descoberta de peers
 	cfg.NoDHT = false
@@ -48,8 +54,10 @@ func NewService(config *DownloadConfig, outputDir string) (*Service, error) {
 	// Habilitar PEX (Peer Exchange)
 	cfg.DisablePEX = false
 
-	// Habilitar uTP para melhor performance de rede
-	cfg.DisableUTP = false
+	// Desabilitar uTP no Windows devido a problemas de compilação com go-libutp
+	// uTP é opcional e o BitTorrent funciona normalmente sem ele
+	// No Linux, uTP pode ser habilitado se necessário
+	cfg.DisableUTP = true
 
 	cfg.EstablishedConnsPerTorrent = 80
 	cfg.HalfOpenConnsPerTorrent = 40

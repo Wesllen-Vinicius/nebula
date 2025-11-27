@@ -3,10 +3,15 @@
   "productName": "Nebula",
   "version": "0.1.0",
   "identifier": "com.nebula.app",
+  "longDescription": "Aplicação desktop multiplataforma para download de arquivos via links magnéticos (magnet links). Ferramenta moderna e profissional para gerenciar downloads de torrents.",
+  "shortDescription": "Baixador de Links Magnéticos",
+  "copyright": "Copyright © 2025 Nebula Contributors",
+  "authors": "Nebula Contributors",
   "build": {
     "beforeDevCommand": "cd frontend && npm run dev",
     "beforeBuildCommand": "cd frontend && npm run build",
-    "devUrl": "http://localhost:5173"
+    "devUrl": "http://localhost:5173",
+    "distDir": "../frontend/dist"
   },
   "app": {
     "windows": [
@@ -63,6 +68,16 @@
       "certificateThumbprint": null,
       "digestAlgorithm": "sha256",
       "timestampUrl": ""
+    },
+    "linux": {
+      "deb": {
+        "depends": [],
+        "files": {},
+        "desktopTemplate": null
+      },
+      "appimage": {
+        "bundleMediaFramework": false
+      }
     }
   },
   "plugins": {}

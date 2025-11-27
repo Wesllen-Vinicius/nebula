@@ -2,9 +2,10 @@
 name = "nebula"
 version = "0.1.0"
 description = "Baixador de Links Magnéticos - Aplicação desktop moderna para download de torrents via magnet links"
-authors = ["Nebula Contributors"]
+authors = ["Nebula Contributors <https://github.com/Wesllen-Vinicius/nebula>"]
 license = "MIT"
-repository = "https://github.com/nebula-app/nebula"
+repository = "https://github.com/Wesllen-Vinicius/nebula"
+homepage = "https://github.com/Wesllen-Vinicius/nebula"
 edition = "2021"
 
 [build-dependencies]

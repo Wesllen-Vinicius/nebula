@@ -18,6 +18,9 @@ export default defineConfig({
     target: ['es2021', 'chrome100', 'safari13'],
     minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
     sourcemap: !!process.env.TAURI_DEBUG,
+    // Garantir que os assets sejam gerados com caminhos relativos
+    // necessário para o Tauri encontrar os arquivos
+    emptyOutDir: true,
   },
   resolve: {
     alias: {
@@ -25,4 +28,3 @@ export default defineConfig({
     },
   },
 })
-

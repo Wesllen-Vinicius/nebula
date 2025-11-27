@@ -41,7 +41,7 @@ func (h *DownloadHandler) HandleDownload(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		logger.Error("failed to decode download request", "error", err)
+		logger.Error("failed to decode download request: %v", err)
 		api.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
 		return
 	}
@@ -102,7 +102,7 @@ func (h *DownloadHandler) HandleDownload(w http.ResponseWriter, r *http.Request)
 	record.Status = "downloading"
 	record.TorrentName = "Processing..."
 	if err := h.deps.Persistence.SaveDownload(record); err != nil {
-		logger.Warn("failed to save download record", "error", err)
+		logger.Warn("failed to save download record: %v", err)
 	}
 
 	api.RespondWithJSON(w, http.StatusOK, map[string]string{"id": id})
@@ -241,7 +241,7 @@ func (h *DownloadHandler) HandleDeleteDownloadFiles(w http.ResponseWriter, r *ht
 		}
 
 		if err := os.RemoveAll(downloadPath); err != nil {
-			logger.Warn("failed to delete download directory", "path", downloadPath, "error", err)
+			logger.Warn("failed to delete download directory %s: %v", downloadPath, err)
 		}
 	}
 
@@ -253,4 +253,3 @@ func (h *DownloadHandler) HandleDeleteDownloadFiles(w http.ResponseWriter, r *ht
 
 	api.RespondWithJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
 }
-

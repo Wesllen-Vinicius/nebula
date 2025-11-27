@@ -154,22 +154,3 @@ func (h *TorrentHandler) HandleGetFilePriority(w http.ResponseWriter, r *http.Re
 
 	api.RespondWithJSON(w, http.StatusOK, map[string]int{"priority": int(priority)})
 }
-
-func extractInfoHash(magnetLink string) string {
-	if len(magnetLink) > 20 {
-		start := len("magnet:?xt=urn:btih:")
-		if len(magnetLink) > start+40 {
-			return magnetLink[start : start+40]
-		}
-	}
-	return ""
-}
-
-func calculateTotalSize(files []downloader.FileMetadata) int64 {
-	var total int64
-	for _, f := range files {
-		total += f.Size
-	}
-	return total
-}
-

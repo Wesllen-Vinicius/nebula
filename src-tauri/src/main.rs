@@ -83,6 +83,8 @@ impl BackendProcess {
             cmd.stdout(std::process::Stdio::inherit());
             cmd.stderr(std::process::Stdio::inherit());
         } else {
+            // Em produção, redirecionar stderr para um arquivo de log para debug
+            // mas não mostrar terminal
             cmd.stdout(std::process::Stdio::null());
             cmd.stderr(std::process::Stdio::null());
         }

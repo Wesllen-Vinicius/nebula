@@ -53,7 +53,8 @@
     "active": true,
     "targets": ["msi", "nsis"],
     "icon": [
-      "icons/icon.ico"
+      "icons/icon.ico",
+      "icons/icon.png"
     ],
     "externalBin": [
       "../backend/bin/nebula-backend"

@@ -115,7 +115,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev patchelf imagemagick
 
       - name: Install frontend dependencies
         working-directory: frontend
@@ -141,8 +141,13 @@ jobs:
           # Tauri 2.0 adiciona sufixo de arquitetura ao externalBin
           # Formato: nebula-backend-{target-triple}
           cp bin/nebula-backend bin/nebula-backend-x86_64-unknown-linux-gnu
-          # Formato: nebula-backend-{target-triple}
-          cp bin/nebula-backend bin/nebula-backend-x86_64-unknown-linux-gnu
+
+      - name: Convert icon ICO to PNG for Linux
+        working-directory: src-tauri
+        run: |
+          if [ -f icons/icon.ico ] && [ ! -f icons/icon.png ]; then
+            convert icons/icon.ico -resize 512x512 icons/icon.png
+          fi
 
       - name: Build Tauri app (Linux)
         working-directory: src-tauri

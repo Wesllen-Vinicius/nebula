@@ -8,7 +8,6 @@ package libutp
 // As funções são stubs vazios que não fazem nada, já que uTP não será usado
 
 import (
-	"io"
 	"net"
 )
 
@@ -22,21 +21,36 @@ type FirewallCallback func(net.Addr) bool
 type Option func(*Socket)
 
 // WithLogger retorna uma opção para configurar logger (stub)
-func WithLogger(logger io.Writer) Option {
+// Aceita interface{} para compatibilidade com diferentes tipos de logger
+func WithLogger(logger interface{}) Option {
 	return func(s *Socket) {}
 }
 
 // NewSocket cria um novo socket uTP (stub)
-// Compatível com anacrolix/torrent v1.54.0 que chama com (network, address, callback)
-// Retorna (*Socket, error) como esperado
-func NewSocket(network, address string, callback FirewallCallback) (*Socket, error) {
-	// Stub vazio - uTP está desabilitado, então não faz nada
-	return &Socket{}, nil
+// Aceita opções variádicas (compatível com anacrolix/torrent v1.54.0)
+func NewSocket(opts ...Option) (*Socket, error) {
+	s := &Socket{}
+	for _, opt := range opts {
+		opt(s)
+	}
+	return s, nil
 }
 
 // Close fecha o socket (stub)
 func (s *Socket) Close() error {
 	return nil
+}
+
+// Accept aceita uma conexão uTP (stub)
+// Necessário para implementar a interface utpSocket
+func (s *Socket) Accept() (net.Conn, error) {
+	return nil, nil
+}
+
+// SetSyncFirewallCallback define o callback de firewall (stub)
+// Necessário para implementar a interface utpSocket
+func (s *Socket) SetSyncFirewallCallback(callback FirewallCallback) {
+	// Stub vazio - não faz nada
 }
 
 // Listen retorna um listener uTP (stub)
